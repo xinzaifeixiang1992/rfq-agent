@@ -1,0 +1,34 @@
+# 环境与密钥
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# 本地数据与产出
+data/*.db
+data/*.db-*
+data/uploads/
+data/memoria_ref/
+outputs/
+output/
+
+# 日志与编辑器
+*.log
+logs/
+.streamlit/secrets.toml
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
