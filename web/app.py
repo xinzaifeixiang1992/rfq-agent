@@ -67,7 +67,7 @@ def call(method: str, path: str, **kw):
 
 health = call("GET", "/health")
 with st.sidebar:
-    st.title("RFQ Agent")
+    st.title("RFQ Agent(询价分析与报价智能体)")
     st.caption(f"DB: {health['db']} · VCS: {health['vcs']} · 记忆: {health['memory']} · "
                f"LLM: {'开' if health['llm'] else '规则引擎'}")
     rfqs = call("GET", "/rfq") or []

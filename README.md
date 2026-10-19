@@ -4,7 +4,7 @@
 
 核心理念是 **报价即提交（Quote-as-Commit）**：报价、规则和记忆都像代码一样经过 `SNAPSHOT → BRANCH → DIFF → MERGE / PICK / ROLLBACK`。
 
-- 在线体验：`待 Railway 首次部署后回填`
+- 在线体验：https://rfq-agent-production.up.railway.app/
 - 三分钟演示视频：`待录制上传后回填`
 - Gitee 仓库：`待创建远程仓库后回填`
 - 访问方式：当前无需账号或密码；管理接口不会在公共页面显示
