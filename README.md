@@ -5,8 +5,9 @@
 核心理念是 **报价即提交（Quote-as-Commit）**：报价、规则和记忆都像代码一样经过 `SNAPSHOT → BRANCH → DIFF → MERGE / PICK / ROLLBACK`。
 
 - 在线体验：https://rfq-agent-production.up.railway.app/
+- 说明文档：[docs/submission.md](docs/submission.md)（GitHub：https://github.com/xinzaifeixiang1992/rfq-agent/blob/main/docs/submission.md）
 - 三分钟演示视频：`待录制上传后回填`
-- Gitee 仓库：`待创建远程仓库后回填`
+- 代码仓库：https://github.com/xinzaifeixiang1992/rfq-agent
 - 访问方式：当前无需账号或密码；管理接口不会在公共页面显示
 
 ## 三分钟体验路径
@@ -224,7 +225,10 @@ docs/                 视频脚本、评委验收清单与脱敏截图
 
 ## 交付材料
 
+- 说明文档（提交版）：[docs/submission.md](docs/submission.md)
 - 视频分镜与旁白：[docs/demo_video_script.md](docs/demo_video_script.md)
+- 点击级录制台本：[docs/demo_walkthrough.md](docs/demo_walkthrough.md)
+- 字幕与念读稿：[docs/subtitle.md](docs/subtitle.md)
 - 评委逐项验收：[docs/judge_checklist.md](docs/judge_checklist.md)
 - 页面截图：[docs/screenshots/](docs/screenshots/)
 

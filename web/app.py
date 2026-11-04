@@ -68,8 +68,9 @@ def call(method: str, path: str, **kw):
 health = call("GET", "/health")
 with st.sidebar:
     st.title("RFQ Agent(询价分析与报价智能体)")
-    st.caption(f"DB: {health['db']} · VCS: {health['vcs']} · 记忆: {health['memory']} · "
-               f"LLM: {'开' if health['llm'] else '规则引擎'}")
+    st.caption("后端组件状态")
+    st.markdown(f"- **DB**：{health['db']}\n- **VCS**：{health['vcs']}\n- **记忆**：{health['memory']}\n"
+                f"- **LLM**：{'开' if health['llm'] else '规则引擎'}")
     rfqs = call("GET", "/rfq") or []
     opts = [r["rfq_id"] for r in rfqs]
     fmt = {r["rfq_id"]: f"{r['rfq_id'][-10:]} · {STATUS.get(r['status'], r['status'])} · {(r['subject'] or '')[:18]}"
