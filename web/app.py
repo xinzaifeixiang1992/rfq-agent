@@ -193,17 +193,31 @@ with tab_q:
             st.dataframe(pd.DataFrame(call("GET", f"/rfq/{rfq_id}/compare") or []), width="stretch")
 
             strategy = st.radio("采用策略", list(LABEL), index=list(LABEL).index(p["recommended"]),
-                                format_func=LABEL.get, horizontal=True)
+                                format_func=LABEL.get, horizontal=True, key=f"strat_{rfq_id}")
             risks = (S.get("risks") or {}).get(strategy) or []
             for r in risks:
                 (st.error if r["level"] == "high" else st.warning if r["level"] == "medium" else st.info)(r["message"])
-            lines = pd.DataFrame(S["quotes"][strategy])
-            lines.insert(0, "采用", lines["unit_price"] > 0)
-            lines["改价"] = lines["unit_price"]
-            ed = st.data_editor(lines[["采用", "line_key", "sku", "description", "qty", "unit", "unit_cost",
-                                       "unit_price", "改价", "margin", "win_prob", "rationale"]],
-                                disabled=["line_key", "sku", "description", "qty", "unit", "unit_cost", "unit_price",
-                                          "margin", "win_prob", "rationale"], width="stretch", key=f"ed_{strategy}")
+            rows = (S.get("quotes") or {}).get(strategy) or []
+            if not rows:
+                st.warning(f"策略「{LABEL.get(strategy)}」暂无报价行，请切换其它策略后重试")
+                lines = pd.DataFrame(columns=["line_key", "unit_price"])
+                ed = pd.DataFrame({"采用": pd.Series(dtype=bool), "line_key": pd.Series(dtype=object),
+                                   "改价": pd.Series(dtype=float), "unit_price": pd.Series(dtype=float)})
+            else:
+                lines = pd.DataFrame(rows)
+                lines.insert(0, "采用", lines["unit_price"] > 0)
+                lines["改价"] = lines["unit_price"]
+                try:
+                    # key 带 rfq_id：不同询价单行数不同，复用同一 key 会让表格拿上一张单的编辑状态去合并而报错
+                    ed = st.data_editor(lines[["采用", "line_key", "sku", "description", "qty", "unit", "unit_cost",
+                                               "unit_price", "改价", "margin", "win_prob", "rationale"]],
+                                        disabled=["line_key", "sku", "description", "qty", "unit", "unit_cost",
+                                                  "unit_price", "margin", "win_prob", "rationale"], width="stretch",
+                                        key=f"ed_{rfq_id}_{strategy}")
+                except Exception as e:  # noqa: BLE001 —— 表格状态异常不应让整个页签变空白
+                    st.error(f"报价表渲染失败（{type(e).__name__}）：切换策略或刷新页面后重试。{e}")
+                    ed = pd.DataFrame({"采用": pd.Series(dtype=bool), "line_key": pd.Series(dtype=object),
+                                       "改价": pd.Series(dtype=float), "unit_price": pd.Series(dtype=float)})
             a1, a2, a3 = st.columns([2, 1, 1])
             comment = a1.text_input("审批意见")
             approver = a1.text_input("审批人", "sales")
