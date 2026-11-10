@@ -41,3 +41,6 @@ Thumbs.db
 *.avi
 *.wmv
 *.flv
+
+# 例外：提交用的演示视频（定稿件，只保留这一份，不要反复替换，否则历史会持续膨胀）
+!docs/rfq-agent-demo.mp4
