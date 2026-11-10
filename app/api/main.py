@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hmac
+import logging
 import threading
 import time
 from collections import defaultdict, deque
@@ -27,6 +28,7 @@ from app.workflow import RFQWorkflow, new_rfq_id
 
 app = FastAPI(title="RFQ Agent", version="0.1.0",
               description="询价分析与报价智能体：Git4Data 报价即提交 · 决策审计 · 记忆版本控制 · 模型路由")
+log = logging.getLogger("rfq.api")
 
 _lock = threading.Lock()
 _state: dict = {}
@@ -73,6 +75,7 @@ async def _conflict(_: Request, e: VCSConflict):
 
 @app.exception_handler(MemoriaError)
 async def _memoria_error(_: Request, e: MemoriaError):
+    log.warning("memoria error: status=%s detail=%s", e.status, e)
     if 400 <= e.status < 500:
         return JSONResponse(status_code=e.status, content={"detail": str(e)})
     return JSONResponse(status_code=503, content={"detail": f"记忆服务暂时不可用（{e.status}），请稍后重试"})
@@ -80,11 +83,14 @@ async def _memoria_error(_: Request, e: MemoriaError):
 
 @app.exception_handler(httpx.HTTPError)
 async def _upstream_error(_: Request, e: httpx.HTTPError):
+    log.warning("upstream error: %s: %s", type(e).__name__, e)
     return JSONResponse(status_code=503, content={"detail": f"外部服务暂时不可用（{type(e).__name__}），请稍后重试"})
 
 
 @app.exception_handler(pymysql.err.OperationalError)
 async def _db_error(_: Request, e: pymysql.err.OperationalError):
+    # 对外仍返回脱敏文案；原始错误码只写服务端日志，否则线上 503 无法定位
+    log.error("database operational error: %s", e, exc_info=e)
     return JSONResponse(status_code=503, content={"detail": "数据库连接暂时不可用，请稍后重试"})
 
 
