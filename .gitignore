@@ -32,3 +32,12 @@ logs/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# 大体积媒体：视频走 B 站主分发 / GitHub Release 备份，绝不进仓库
+# （GitHub 单文件硬限 100 MB，LFS 免费额度仅 1 GB 存储 + 1 GB/月带宽）
+*.mp4
+*.mov
+*.mkv
+*.avi
+*.wmv
+*.flv
