@@ -312,14 +312,14 @@ with tab_mem:
             call("POST", "/memory/snapshots", json={"name": sn})
             st.rerun()
         st.subheader("学习分支评审")
-        br = st.text_input("分支名", f"learn_{rfq_id.lower()}" if rfq_id else "")
+        br = st.text_input("分支名", f"learn_{rfq_id.lower()}" if rfq_id else "", key="mem_branch")
         b1, b2, b3 = st.columns(3)
-        if b1.button("DIFF") and br:
+        if b1.button("DIFF", key="mem_diff") and br:
             st.dataframe(pd.DataFrame(call("GET", f"/memory/branches/{br}/diff") or []))
-        if b2.button("合并到 main") and br:
+        if b2.button("合并到 main", key="mem_merge") and br:
             call("POST", f"/memory/branches/{br}/merge")
             st.rerun()
-        if b3.button("丢弃分支") and br:
+        if b3.button("丢弃分支", key="mem_drop") and br:
             call("DELETE", f"/memory/branches/{br}")
 
 # ---------------- ⑤ 记忆网关 ----------------
@@ -390,7 +390,7 @@ with tab_rule:
     rules = call("GET", "/rules") or []
     st.dataframe(pd.DataFrame(rules), width="stretch")
     with st.form("rule_form"):
-        name = st.text_input("分支名", "aggressive")
+        name = st.text_input("分支名", "aggressive", key="rule_branch_name")
         keys = [r["rule_key"] for r in rules]
         r1, r2 = st.columns(2)
         k = r1.selectbox("规则", keys, index=keys.index("target_margin") if "target_margin" in keys else 0)
@@ -403,7 +403,7 @@ with tab_rule:
     if rb:
         st.markdown(f"**分支 `{rb}`**")
         st.json(call("GET", f"/rules/branches/{rb}/diff"), expanded=False)
-        if st.button("用近期询价回测"):
+        if st.button("用近期询价回测", key="rule_backtest"):
             bt = call("GET", f"/rules/branches/{rb}/backtest")
             if bt:
                 st.write(bt["total"])
@@ -412,11 +412,11 @@ with tab_rule:
                                             "主线期望毛利": r["main"]["expected_profit"],
                                             "分支期望毛利": r["branch"]["expected_profit"]} for r in bt["rfqs"]]))
         c1, c2 = st.columns(2)
-        if c1.button("MERGE 到主线", type="primary"):
+        if c1.button("MERGE 到主线", key="rule_merge", type="primary"):
             call("POST", f"/rules/branches/{rb}/merge")
             st.session_state.pop("rule_result", None)
             st.rerun()
-        if c2.button("丢弃分支"):
+        if c2.button("丢弃分支", key="rule_drop"):
             call("DELETE", f"/rules/branches/{rb}")
             st.session_state.pop("rule_result", None)
             st.rerun()
