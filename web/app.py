@@ -389,16 +389,17 @@ with tab_gate:
 with tab_rule:
     rules = call("GET", "/rules") or []
     st.dataframe(pd.DataFrame(rules), width="stretch")
-    with st.form("rule_branch"):
+    with st.form("rule_form"):
         name = st.text_input("分支名", "aggressive")
         keys = [r["rule_key"] for r in rules]
         r1, r2 = st.columns(2)
         k = r1.selectbox("规则", keys, index=keys.index("target_margin") if "target_margin" in keys else 0)
         v = r2.text_input("新值", "0.18")
         if st.form_submit_button("在数据分支上修改"):
-            st.session_state.rule_branch = (call("POST", "/rules/branches", json={"name": name, "changes": {k: v}})
+            # 结果存在独立键：与 form 的 widget key 同名会报 StreamlitWidgetAlreadyInstantiatedError
+            st.session_state.rule_result = (call("POST", "/rules/branches", json={"name": name, "changes": {k: v}})
                                             or {}).get("branch")
-    rb = st.session_state.get("rule_branch")
+    rb = st.session_state.get("rule_result")
     if rb:
         st.markdown(f"**分支 `{rb}`**")
         st.json(call("GET", f"/rules/branches/{rb}/diff"), expanded=False)
@@ -413,11 +414,11 @@ with tab_rule:
         c1, c2 = st.columns(2)
         if c1.button("MERGE 到主线", type="primary"):
             call("POST", f"/rules/branches/{rb}/merge")
-            st.session_state.pop("rule_branch")
+            st.session_state.pop("rule_result", None)
             st.rerun()
         if c2.button("丢弃分支"):
             call("DELETE", f"/rules/branches/{rb}")
-            st.session_state.pop("rule_branch")
+            st.session_state.pop("rule_result", None)
             st.rerun()
 
 # ---------------- ⑦ 模型路由 ----------------
