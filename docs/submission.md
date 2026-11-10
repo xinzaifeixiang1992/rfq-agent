@@ -6,7 +6,7 @@
 |---|---|
 | 在线体验 | https://rfq-agent-production.up.railway.app |
 | 存活检查 | https://rfq-agent-production.up.railway.app/_stcore/health （返回 `ok`） |
-| 演示视频 | 录制上传后回填 |
+| 演示视频 | [B 站（1080P）](https://www.bilibili.com/video/BV1WLWu64EJe) · [仓库内备份](rfq-agent-demo.mp4) |
 | 代码仓库 | https://github.com/xinzaifeixiang1992/rfq-agent |
 | 访问密码 | 无需账号或密码 |
 

@@ -6,7 +6,7 @@
 
 - 在线体验：https://rfq-agent-production.up.railway.app/
 - 说明文档：[docs/submission.md](docs/submission.md)（GitHub：https://github.com/xinzaifeixiang1992/rfq-agent/blob/main/docs/submission.md）
-- 三分钟演示视频：`待录制上传后回填`
+- 三分钟演示视频：[B 站](https://www.bilibili.com/video/BV1WLWu64EJe)（另有 [仓库内备份](docs/rfq-agent-demo.mp4)）
 - 代码仓库：https://github.com/xinzaifeixiang1992/rfq-agent
 - 访问方式：当前无需账号或密码；管理接口不会在公共页面显示
 
