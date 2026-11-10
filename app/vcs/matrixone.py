@@ -7,6 +7,8 @@ import time
 from contextlib import contextmanager
 from typing import Sequence
 
+import pymysql
+
 from app.db.conn import MatrixOneDatabase
 from app.db.schema import VERSIONED_PK
 from app.vcs.base import Conflict, DataVCS, DiffResult, DiffSummary, VCSConflict, ident
@@ -29,11 +31,49 @@ def _conflict_as_vcs():
 class MatrixOneVCS(DataVCS):
     backend = "matrixone"
     db: MatrixOneDatabase
+    # 表级快照为账户级对象，上限 50；保留 30 个既够回溯近期单据，又留出余量
+    SNAPSHOT_KEEP = 30
+    # 只回收询价单快照，baseline / pre_merge_* 等记忆快照留给演示使用
+    SNAPSHOT_PREFIX = "sn_rfq"
+
+    def _snapshots(self) -> list[tuple[str, str]]:
+        """本库的表级快照，按创建时间（缺列时退化为名称，名称自带时间戳）升序。"""
+        out = []
+        for r in self.db.query("SHOW SNAPSHOTS"):
+            row = {str(k).lower(): v for k, v in r.items()}
+            name = row.get("snapshot_name") or row.get("name")
+            if not name or (row.get("database_name") or row.get("database")) != self.db.database:
+                continue
+            ts = row.get("created_time") or row.get("create_time") or row.get("created_at") or ""
+            out.append((f"{ts}|{name}", str(name)))
+        return sorted(out)
+
+    def prune_snapshots(self, keep: int | None = None, prefix: str = "") -> int:
+        """保留最近 keep 个表级快照，删除更早的，返回删除数量。"""
+        keep = self.SNAPSHOT_KEEP if keep is None else keep
+        snaps = [s for s in self._snapshots() if s[1].lower().startswith(prefix or self.SNAPSHOT_PREFIX)]
+        victims = snaps[: max(0, len(snaps) - keep)]
+        for _, name in victims:
+            self.db.execute(f"DROP SNAPSHOT IF EXISTS {ident(name)}")
+        return len(victims)
 
     def snapshot(self, name, table):
         # 快照为账户级对象；FOR TABLE 子句中库名与表名以空格分隔
-        self.db.execute(f"DROP SNAPSHOT IF EXISTS {ident(name)}")
-        self.db.execute(f"CREATE SNAPSHOT {ident(name)} FOR TABLE {ident(self.db.database)} {ident(table)}")
+        name = ident(name)
+        self.db.execute(f"DROP SNAPSHOT IF EXISTS {name}")
+        sql = f"CREATE SNAPSHOT {name} FOR TABLE {ident(self.db.database)} {ident(table)}"
+        try:
+            self.db.execute(sql)
+        except pymysql.err.MySQLError as e:
+            if "limit of 50" not in str(e).lower():
+                raise
+            # 快照配额已满（20101）时先回收本库最旧的快照，再重试一次，
+            # 否则每个新询价单都会在 intake 阶段直接 503
+            n = self.prune_snapshots()
+            log.warning("MatrixOne 表级快照达上限，已回收 %d 个最旧快照后重试: %s", n, e)
+            if not n:
+                raise
+            self.db.execute(sql)
         return name
 
     def read_at(self, table, snapshot, where="", params=()):
@@ -153,9 +193,7 @@ class MatrixOneVCS(DataVCS):
     def drop_snapshots(self) -> int:
         """删除本库的表级快照（演示重置用）。"""
         n = 0
-        for r in self.db.query("SHOW SNAPSHOTS"):
-            row = {k.lower(): v for k, v in r.items()}
-            if row.get("database_name") == self.db.database:
-                self.db.execute(f"DROP SNAPSHOT IF EXISTS {ident(row['snapshot_name'])}")
-                n += 1
+        for _, name in self._snapshots():
+            self.db.execute(f"DROP SNAPSHOT IF EXISTS {ident(name)}")
+            n += 1
         return n

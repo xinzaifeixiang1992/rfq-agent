@@ -118,10 +118,17 @@ def seed(db: Database, *, history: int = 2000, rnd_seed: int = 42, models: dict 
     db.executemany("INSERT INTO pricing_rule VALUES (%s,%s,%s,%s)",
                    [(k, v, RULES["version"][0], note) for k, (v, note) in RULES.items()])
 
-    m = models or {"fast": "deepseek-v4.1-flash", "strong": "deepseek-v4-pro", "vision": "qwen3.8-max"}
-    db.executemany("INSERT INTO model_catalog VALUES (%s,%s,%s)", [
-        (m["fast"], "llm", 0.0008), (m["strong"], "llm", 0.0024), (m["vision"], "vlm", 0.003),
-        ("rule-engine", "rule", 0.0)])
+    m = models or {"fast": "deepseek-v4.1-flash", "strong": "qwen3.8-max", "vision": "qwen3.8-max"}
+    # strong 与 vision 常指向同一个模型，而 model_catalog 以 model 为主键，先按名字合并再写入
+    catalog: dict[str, tuple[str, str, float]] = {}
+    for model, kind, cost in ((m["fast"], "llm", 0.0008), (m["strong"], "llm", 0.0024),
+                              (m["vision"], "vlm", 0.003), ("rule-engine", "rule", 0.0)):
+        old = catalog.get(model)
+        if old:
+            kind = "vlm" if "vlm" in (kind, old[1]) else kind
+            cost = max(cost, old[2])
+        catalog[model] = (model, kind, cost)
+    db.executemany("INSERT INTO model_catalog VALUES (%s,%s,%s)", list(catalog.values()))
     db.executemany("INSERT INTO model_route VALUES (%s,%s,%s,%s,%s,%s)", [
         ("intake_extract", m["fast"], m["strong"], "rule-engine", 0.75, "v1"),
         ("body_items", m["fast"], m["strong"], "rule-engine", 0.7, "v1"),

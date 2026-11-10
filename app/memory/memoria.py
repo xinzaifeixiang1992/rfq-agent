@@ -243,6 +243,16 @@ class MemoriaStore(MemoryStore):
     def branch(self, name):
         self._call("POST", "/v1/branches", json={"name": _name(name)})
 
+    def branches(self) -> list[str]:
+        """云端分支名列表（服务端未返回时为空列表）。"""
+        items = self._items(self._call("GET", "/v1/branches"))
+        out = []
+        for b in items:
+            name = b.get("name") if isinstance(b, dict) else b
+            if name:
+                out.append(str(name))
+        return out
+
     def checkout(self, name):
         self._call("POST", f"/v1/branches/{_name(name)}/checkout")
         self.current_branch = name

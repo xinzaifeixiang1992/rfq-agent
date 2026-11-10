@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     llm_base_url: str = ""
     llm_api_key: str = ""
     model_fast: str = "deepseek-v4.1-flash"
-    model_strong: str = "deepseek-v4-pro"
+    model_strong: str = "qwen3.8-max"
     model_vision: str = "qwen3.8-max"
 
     api_base: str = "http://127.0.0.1:8000"
