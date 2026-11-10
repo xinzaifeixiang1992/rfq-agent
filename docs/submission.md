@@ -26,6 +26,10 @@
 
 核心理念是 **报价即提交（Quote-as-Commit）**：报价、规则和记忆都像代码一样经过 `SNAPSHOT → BRANCH → DIFF → MERGE / PICK / ROLLBACK`。
 
+![架构总览](images/architecture.png)
+
+*图：系统分层。公网只暴露 Streamlit，FastAPI 仅监听 `127.0.0.1:8000`；业务数据与长期记忆分别由 Git4Data 与 Memoria 提供版本语义；审计贯穿每个节点。图形由 `scripts/make_architecture_png.py` 生成，可随代码修改重绘。*
+
 ```text
 浏览器
   │

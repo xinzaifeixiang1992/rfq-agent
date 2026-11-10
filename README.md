@@ -58,7 +58,9 @@ MatrixOne / Git4Data                       Memoria
 SNAPSHOT / BRANCH / DIFF / PICK / MERGE    branch / diff / snapshot / rollback
 ```
 
-> 图形版（系统分层、单张询价完整链路、审计与重放三张 Mermaid 图 + 关键取舍表）见 [docs/architecture.md](docs/architecture.md)，GitHub 直接渲染，也可导出 PNG 用于答辩与视频。
+![架构总览](docs/images/architecture.png)
+
+> 上图由 `scripts/make_architecture_png.py` 生成，随代码修改重绘；另有系统分层、单张询价完整链路、审计与重放三张 Mermaid 图与关键取舍表，见 [docs/architecture.md](docs/architecture.md)。
 
 ### 四项赛题核心能力
 

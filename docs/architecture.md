@@ -2,6 +2,10 @@
 
 三张图分别回答：**系统怎么分层**、**一张询价单怎么走完全程**、**三档策略与 Git4Data 怎么落地**。图用 Mermaid 编写，GitHub 直接渲染；需要 PNG 时可粘贴到 <https://mermaid.live> 导出。
 
+静态总览图（PNG，由 `scripts/make_architecture_png.py` 生成，可直接放进 PPT 与视频）：
+
+![架构总览](images/architecture.png)
+
 ## 一、系统分层
 
 ```mermaid
