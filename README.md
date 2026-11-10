@@ -221,6 +221,7 @@ docs/                 视频脚本、评委验收清单与脱敏截图
 - 记忆后端的当前分支是实例状态，当前以单 worker 避免跨请求竞争；生产多租户需改为请求级分支上下文。
 - Railway 本地文件系统非持久化，生成的报价文件在重启后丢失；正式环境应接入对象存储。
 - Memoria 免费/当前服务有快照配额，客户端只回收本应用创建的最旧注册快照；快照列表异常时短超时并回退本进程已知列表。
+- **MatrixOne 表级快照配额（免费额度硬限制，50 个）**：当前使用的免费 Serverless 实例对表级快照（`CREATE SNAPSHOT ... FOR TABLE`）有账户级上限 50 个。本应用每单为 `cost_price`、`pricing_rule` 各建 1 个快照，即 2 个/单，约 25 单即达上限；超限后 `CREATE SNAPSHOT` 返回 `20101 ... has reached the limit of 50`，会被统一兜底转换为 **503「数据库连接暂时不可用，请稍后重试」**，实际原因是配额而非连接故障。`MatrixOneVCS.snapshot()` 已实现自动回收最旧询价单快照后重试，也可手动执行 `python scripts/prune_snapshots.py --keep 0` 立即释放配额。
 - MatrixOne Git4Data 与外部模型属于远程依赖，代码已配置有界超时和可审计降级，但公网延迟会影响单次处理时长。
 
 ## 交付材料
