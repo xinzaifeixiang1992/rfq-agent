@@ -26,6 +26,16 @@ STATUS = {"parsing": "解析中", "pricing": "定价中", "pending_approval": "�
           "rejected": "已驳回", "won": "已成交", "lost": "已丢单"}
 
 st.set_page_config(page_title="RFQ 询价分析与报价智能体", layout="wide")
+# 顶部常驻空白带：默认 header 占 3.75rem 且 fixed，内容区再压 6rem 上内边距，
+# 滚动时形成一条盖住内容的空白。演示要满屏看数据，这里隐藏 header、把内边距压到 1.2rem。
+st.markdown(
+    """<style>
+    header[data-testid="stHeader"] { display: none; }
+    .stAppViewBlockContainer, .block-container { padding-top: 1.2rem !important; }
+    [data-testid="stDecoration"] { display: none; }
+    </style>""",
+    unsafe_allow_html=True,
+)
 http = httpx.Client(base_url=API, timeout=180)
 
 

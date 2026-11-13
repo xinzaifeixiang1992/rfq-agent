@@ -19,10 +19,15 @@ htmlcov/
 # 本地数据与产出
 data/*.db
 data/*.db-*
+data/*.pids
 data/uploads/
 data/memoria_ref/
 outputs/
 output/
+
+# 本地材料：展台/路演/履历等非公开材料与外部参考，不入库
+local/
+else/
 
 # 日志与编辑器
 *.log

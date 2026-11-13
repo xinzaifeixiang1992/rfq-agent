@@ -237,4 +237,17 @@ docs/                 视频脚本、评委验收清单与脱敏截图
 - 评委逐项验收：[docs/judge_checklist.md](docs/judge_checklist.md)
 - 页面截图：[docs/screenshots/](docs/screenshots/)
 
+## 离线演示（断网/无云凭据）
+
+```powershell
+# 一键起：SQLite + Git4Data 仿真 + 规则引擎，预置四封样例（一单已提交、三单待审批）
+powershell -ExecutionPolicy Bypass -File scripts\offline_demo.ps1
+
+# 重建演示现场 / 结束服务
+powershell -ExecutionPolicy Bypass -File scripts\offline_demo.ps1 -Reset
+powershell -ExecutionPolicy Bypass -File scripts\offline_demo.ps1 -Stop
+```
+
+环境变量只在脚本进程内覆盖，不改 `.env`；离线库为 `data/rfq_offline.db`，与日常库隔离。
+
 本项目仅用于比赛演示与技术验证，不建议未经权限、持久化和并发改造直接用于生产报价。
